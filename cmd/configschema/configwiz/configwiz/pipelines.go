@@ -114,7 +114,7 @@ type rpe struct {
 
 func componentListWizard(pr indentingPrinter, componentGroup string, componentNames []string) (out []string) {
 	io := clio{printLine, readline}
-	p := clio{write: printLine}.newIndentingPrinter(1)
+	p := io.newIndentingPrinter(1)
 	for {
 		pr.println(fmt.Sprintf("Current %ss: [%s]", componentGroup, strings.Join(out, ", ")))
 		key, name := componentNameWizard(io, p, componentGroup, componentNames)
@@ -141,7 +141,9 @@ func componentNameWizard(io clio, pr indentingPrinter2, componentType string, co
 	}
 	i, _ := strconv.Atoi(choice)
 	if i < 0 || i > len(componentNames)-1 {
-		fmt.Println(invalidMsg)
+		pr.level--
+		pr.println(invalidMsg)
+		pr.level++
 		return componentNameWizard(io, pr, componentType, componentNames)
 	}
 	key := componentNames[i]

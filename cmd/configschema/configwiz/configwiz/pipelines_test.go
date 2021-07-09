@@ -18,10 +18,22 @@ import (
 	"fmt"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
+
+type fakeReaderPipe struct {
+	userInput []string
+	input     int
+}
+
+func (r *fakeReaderPipe) read(defaultVal string) string {
+	out := r.userInput[r.input]
+	if r.input < len(r.userInput)-1 {
+		r.input++
+	}
+	return out
+}
 
 func TestComponentNameWizard(t *testing.T) {
 	// Test components get printed out
@@ -51,13 +63,13 @@ func TestComponentNameWizard(t *testing.T) {
 	expected2 := expected + fmt.Sprintf("%s%s %s extended name (optional) > ", tab, out, compType)
 	assert.Equal(t, expected2, w2.programOutput)
 
-	// Test error; recurses so using a timer
+	// Test error
 	w3 := fakeWriter{}
-	r3 := fakeReader{"-1"}
+	r3 := fakeReaderPipe{[]string{"-1", ""}, 0}
 	io3 := clio{w3.write, r3.read}
 	pr3 := io3.newIndentingPrinter(1)
-	assert.Neverf(t, func() bool {
-		componentNameWizard(io3, pr3, compType, compNames)
-		return true
-	}, 2*time.Millisecond, 1*time.Millisecond, "Component Name Wizard passed on invalid input")
+	componentNameWizard(io3, pr3, compType, compNames)
+	expected3 := expected + "Invalid input. Try again.\n"
+	expected3 += expected
+	assert.Equal(t, expected3, w3.programOutput)
 }
