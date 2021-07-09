@@ -113,9 +113,11 @@ type rpe struct {
 }
 
 func componentListWizard(pr indentingPrinter, componentGroup string, componentNames []string) (out []string) {
+	io := clio{printLine, readline}
+	p := clio{write: printLine}.newIndentingPrinter(1)
 	for {
 		pr.println(fmt.Sprintf("Current %ss: [%s]", componentGroup, strings.Join(out, ", ")))
-		key, name := componentNameWizard(pr, componentGroup, componentNames)
+		key, name := componentNameWizard(io, p, componentGroup, componentNames)
 		if key == "" {
 			break
 		}
@@ -127,24 +129,24 @@ func componentListWizard(pr indentingPrinter, componentGroup string, componentNa
 	return
 }
 
-func componentNameWizard(pr indentingPrinter, componentType string, componentNames []string) (string, string) {
+func componentNameWizard(io clio, pr indentingPrinter2, componentType string, componentNames []string) (string, string) {
 	pr.println(fmt.Sprintf("Add %s (enter to skip)", componentType))
 	for i, name := range componentNames {
 		pr.println(fmt.Sprintf("%d: %s", i, name))
 	}
 	pr.print("> ")
-	choice := readline("")
+	choice := io.read("")
 	if choice == "" {
 		return "", ""
 	}
 	i, _ := strconv.Atoi(choice)
 	if i < 0 || i > len(componentNames)-1 {
 		fmt.Println(invalidMsg)
-		return componentNameWizard(pr, componentType, componentNames)
+		return componentNameWizard(io, pr, componentType, componentNames)
 	}
 	key := componentNames[i]
 	pr.print(fmt.Sprintf("%s %s extended name (optional) > ", key, componentType))
-	return key, readline("")
+	return key, io.read("")
 }
 
 type receiverFactoryTest func(factory component.ReceiverFactory) bool
