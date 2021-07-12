@@ -36,7 +36,7 @@ func (r *fakeReaderPipe) read(defaultVal string) string {
 }
 
 // returns componentNameWizard() output, a list of all components
-func buildList(indent int, prefix string, compType string, compNames []string) string {
+func buildNameWizard(indent int, prefix string, compType string, compNames []string) string {
 	const tabSize = 4
 	space := indent * tabSize
 	tab := strings.Repeat(" ", space)
@@ -48,30 +48,33 @@ func buildList(indent int, prefix string, compType string, compNames []string) s
 	return prefix + expected
 }
 
-func buildCompExpected(indent int, compGroup string, compNames []string, inputs []string) string {
+// returns componentListWizard() output
+func buildListWizard(indent int, compGroup string, compNames []string, inputs []string) string {
 	const tabSize = 4
 	space := indent * tabSize
 	tab := strings.Repeat(" ", space)
 	expected := fmt.Sprintf("%sCurrent %ss: []\n", tab, compGroup)
 	if len(inputs) == 0 {
-		return buildList(1, expected, compGroup, compNames)
+		return buildNameWizard(1, expected, compGroup, compNames)
 	}
-	expected = buildList(1, expected, compGroup, compNames)
-	for counter := 1 ; counter <= len(inputs); counter++{
-		expected += fmt.Sprintf("%s%s %s extended name (optional) > ", tab, strings.Split(inputs[counter-1], "/")[0], compGroup)
+	expected = buildNameWizard(1, expected, compGroup, compNames)
+	for counter := 1; counter <= len(inputs); counter++ {
+		theComp := strings.Split(inputs[counter-1], "/")[0]
+		expected += fmt.Sprintf("%s%s %s extended name (optional) > ", tab, theComp, compGroup)
 		expected += fmt.Sprintf("%sCurrent tests: [", tab)
 		names := inputs[0:counter]
 		for _, name := range names {
 			expected += name + ", "
 		}
-		expected = expected[0:len(expected)-2]
+		expected = expected[0 : len(expected)-2]
 		expected += "]\n"
-		expected = buildList(1, expected, compGroup, compNames)
+		expected = buildNameWizard(1, expected, compGroup, compNames)
 	}
 	return expected
 }
 
 func TestComponentListWizard(t *testing.T) {
+	// Test with no extra inputs
 	w := fakeWriter{}
 	r := fakeReader{}
 	io := clio{w.write, r.read}
@@ -79,33 +82,49 @@ func TestComponentListWizard(t *testing.T) {
 	compGroup := "test"
 	compNames := []string{"comp1", "comp2", "comp3"}
 	componentListWizard(io, pr, compGroup, compNames)
-	expected := buildCompExpected(1, compGroup, compNames, []string{})
+	expected := buildListWizard(1, compGroup, compNames, []string{})
 	assert.Equal(t, expected, w.programOutput)
 
-	//Testing inputting a value inside
+	// Testing with an input
 	w2 := fakeWriter{}
 	r2 := fakeReaderPipe{userInput: []string{"0", ""}, input: 0}
 	io2 := clio{w2.write, r2.read}
 	pr2 := io2.newIndentingPrinter(1)
 	componentListWizard(io2, pr2, compGroup, compNames)
-	expected2 := buildCompExpected(1, compGroup, compNames, []string{compNames[0]})
+	expected2 := buildListWizard(
+		1,
+		compGroup,
+		compNames,
+		[]string{compNames[0]},
+		)
 	assert.Equal(t, expected2, w2.programOutput)
 
-	// Testing extension and the input of another value
+	// Testing extension and the input 1+ component
 	w3 := fakeWriter{}
 	r3 := fakeReaderPipe{userInput: []string{"0", "extension", "1", "", ""}, input: 0}
 	io3 := clio{w3.write, r3.read}
 	pr3 := io3.newIndentingPrinter(1)
 	componentListWizard(io3, pr3, compGroup, compNames)
-	expected3 := buildCompExpected(1,  compGroup, compNames, []string{compNames[0] +"/extension" , compNames[1]})
+	expected3 := buildListWizard(
+		1,
+		compGroup,
+		compNames,
+		[]string{compNames[0] + "/extension", compNames[1]},
+		)
 	assert.Equal(t, expected3, w3.programOutput)
 
+	// Extra test for buildListWizard on 2+
 	w4 := fakeWriter{}
 	r4 := fakeReaderPipe{userInput: []string{"0", "", "1", "extension", "2", "", ""}}
-	io4 := clio{w4.write ,r4.read}
+	io4 := clio{w4.write, r4.read}
 	pr4 := io4.newIndentingPrinter(1)
 	componentListWizard(io4, pr4, compGroup, compNames)
-	expected4 := buildCompExpected(1, compGroup, compNames, []string{compNames[0], compNames[1] + "/extension", compNames[2]})
+	expected4 := buildListWizard(
+		1,
+		compGroup,
+		compNames,
+		[]string{compNames[0], compNames[1] + "/extension", compNames[2]},
+		)
 	assert.Equal(t, expected4, w4.programOutput)
 
 }
@@ -120,7 +139,7 @@ func TestComponentNameWizard(t *testing.T) {
 	compNames := []string{"comp1", "comp2", "comp3"}
 	componentNameWizard(io, pr, compType, compNames)
 	tab := strings.Repeat(" ", 4)
-	expected := buildList(1, "", compType, compNames)
+	expected := buildNameWizard(1, "", compType, compNames)
 	assert.Equal(t, expected, w.programOutput)
 
 	// Test extended name
