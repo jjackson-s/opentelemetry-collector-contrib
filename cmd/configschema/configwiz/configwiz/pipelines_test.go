@@ -60,6 +60,17 @@ func TestComponentListWizard(t *testing.T) {
 	expected := fmt.Sprintf("%sCurrent %ss: []\n", tab, compGroup)
 	expected = buildCompExpected(1, expected, compGroup, compNames)
 	assert.Equal(t, expected, w.programOutput)
+
+	//Testing inputting a value inside
+	w2 := fakeWriter{}
+	r2 := fakeReaderPipe{userInput : []string{"0", ""}, input: 0}
+	io2 := clio{w2.write, r2.read}
+	pr2 := io2.newIndentingPrinter(1)
+	componentListWizard(io2, pr2, compGroup, compNames)
+	expected2 := expected + fmt.Sprintf("%s%s %s extended name (optional) > ", tab, compNames[0], compGroup)
+	expected2 += fmt.Sprintf("%sCurrent tests: [%s]\n", tab, compNames[0])
+	expected2 = buildCompExpected(1, expected2, compGroup, compNames)
+	assert.Equal(t, expected2, w2.programOutput)
 }
 
 func TestComponentNameWizard(t *testing.T) {
