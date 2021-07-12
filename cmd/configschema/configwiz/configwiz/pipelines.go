@@ -97,11 +97,13 @@ func pipelineTypeWizard(
 }
 
 func rpeWizard(pr indentingPrinter, receiverNames []string, processorNames []string, exporterNames []string, extensionNames []string) rpe {
+	io := clio{printLine, readline}
+	p := io.newIndentingPrinter(1)
 	out := rpe{}
-	out.Receivers = componentListWizard(pr, "receiver", receiverNames)
-	out.Processors = componentListWizard(pr, "processor", processorNames)
-	out.Exporters = componentListWizard(pr, "exporter", exporterNames)
-	out.Extensions = componentListWizard(pr, "extension", extensionNames)
+	out.Receivers = componentListWizard(io, p, "receiver", receiverNames)
+	out.Processors = componentListWizard(io, p, "processor", processorNames)
+	out.Exporters = componentListWizard(io, p, "exporter", exporterNames)
+	out.Extensions = componentListWizard(io, p, "extension", extensionNames)
 	return out
 }
 
@@ -112,12 +114,10 @@ type rpe struct {
 	Extensions []string
 }
 
-func componentListWizard(pr indentingPrinter, componentGroup string, componentNames []string) (out []string) {
-	io := clio{printLine, readline}
-	p := io.newIndentingPrinter(1)
+func componentListWizard(io clio, pr indentingPrinter2, componentGroup string, componentNames []string) (out []string) {
 	for {
 		pr.println(fmt.Sprintf("Current %ss: [%s]", componentGroup, strings.Join(out, ", ")))
-		key, name := componentNameWizard(io, p, componentGroup, componentNames)
+		key, name := componentNameWizard(io, pr, componentGroup, componentNames)
 		if key == "" {
 			break
 		}

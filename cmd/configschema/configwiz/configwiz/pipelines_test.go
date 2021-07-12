@@ -35,6 +35,33 @@ func (r *fakeReaderPipe) read(defaultVal string) string {
 	return out
 }
 
+func buildCompExpected(indent int, prefix string, compType string, compNames []string) string {
+	const tabSize = 4
+	space := indent * tabSize
+	tab := strings.Repeat(" ", space)
+	expected := fmt.Sprintf("%sAdd %s (enter to skip)\n", tab, compType)
+	for i := 0; i < 3; i++ {
+		expected += fmt.Sprintf("%s%d: %s\n", tab, i, compNames[i])
+	}
+	expected += tab + "> "
+	return prefix + expected
+}
+
+func TestComponentListWizard(t *testing.T) {
+	tab := strings.Repeat(" ", 4)
+
+	w := fakeWriter{}
+	r := fakeReader{}
+	io := clio{w.write, r.read}
+	pr := io.newIndentingPrinter(1)
+	compGroup := "test"
+	compNames := []string{"comp1", "comp2", "comp3"}
+	componentListWizard(io, pr, compGroup, compNames)
+	expected := fmt.Sprintf("%sCurrent %ss: []\n", tab, compGroup)
+	expected = buildCompExpected(1, expected, compGroup, compNames)
+	assert.Equal(t, expected, w.programOutput)
+}
+
 func TestComponentNameWizard(t *testing.T) {
 	// Test components get printed out
 	w := fakeWriter{}
@@ -45,11 +72,7 @@ func TestComponentNameWizard(t *testing.T) {
 	compNames := []string{"comp1", "comp2", "comp3"}
 	componentNameWizard(io, pr, compType, compNames)
 	tab := strings.Repeat(" ", 4)
-	expected := fmt.Sprintf("%sAdd %s (enter to skip)\n", tab, compType)
-	for i := 0; i < 3; i++ {
-		expected += fmt.Sprintf("%s%d: %s\n", tab, i, compNames[i])
-	}
-	expected += tab + "> "
+	expected := buildCompExpected(1, "", compType, compNames)
 	assert.Equal(t, expected, w.programOutput)
 
 	// Test extended name
