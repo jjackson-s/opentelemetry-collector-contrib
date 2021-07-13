@@ -91,19 +91,26 @@ func pipelineTypeWizard(
 		name += "/" + nameExt
 	}
 	fmt.Printf("Pipeline %q\n", name)
-	pr := indentingPrinter{level: 1}
-	rpe := rpeWizard(pr, receivers, processors, exporters, extensions)
+	io := clio{printLine, readline}
+	pr := io.newIndentingPrinter(1)
+	rpe := rpeWizard(io, pr, receivers, processors, exporters, extensions)
 	return name, rpe
 }
 
-func rpeWizard(pr indentingPrinter, receiverNames []string, processorNames []string, exporterNames []string, extensionNames []string) rpe {
-	io := clio{printLine, readline}
-	p := io.newIndentingPrinter(1)
+func rpeWizard(
+	io clio,
+	pr indentingPrinter2,
+	receiverNames []string,
+	processorNames []string,
+	exporterNames []string,
+	extensionNames []string,
+	) rpe {
+
 	out := rpe{}
-	out.Receivers = componentListWizard(io, p, "receiver", receiverNames)
-	out.Processors = componentListWizard(io, p, "processor", processorNames)
-	out.Exporters = componentListWizard(io, p, "exporter", exporterNames)
-	out.Extensions = componentListWizard(io, p, "extension", extensionNames)
+	out.Receivers = componentListWizard(io, pr, "receiver", receiverNames)
+	out.Processors = componentListWizard(io, pr, "processor", processorNames)
+	out.Exporters = componentListWizard(io, pr, "exporter", exporterNames)
+	out.Extensions = componentListWizard(io, pr, "extension", extensionNames)
 	return out
 }
 
