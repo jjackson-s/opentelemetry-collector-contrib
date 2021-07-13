@@ -104,7 +104,7 @@ func rpeWizard(
 	processorNames []string,
 	exporterNames []string,
 	extensionNames []string,
-	) rpe {
+) rpe {
 
 	out := rpe{}
 	out.Receivers = componentListWizard(io, pr, "receiver", receiverNames)

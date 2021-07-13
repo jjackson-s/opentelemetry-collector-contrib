@@ -35,7 +35,6 @@ func (r *fakeReaderPipe) read(defaultVal string) string {
 	return out
 }
 
-
 // returns componentNameWizard() output, a list of all components
 func buildNameWizard(indent int, prefix string, compType string, compNames []string) string {
 	const tabSize = 4
@@ -74,20 +73,21 @@ func buildListWizard(indent int, compGroup string, compNames []string, inputs []
 	return expected
 }
 
+// returns RpeWizard() output
 func buildRpeWizard(
 	testRecs []string, testProcs []string,
 	testExps []string, testExts []string,
 	recInput []string, procInput []string,
 	expInput []string, extInput []string,
-) (string, rpe){
+) (string, rpe) {
 	expected := buildListWizard(1, "receiver", testRecs, recInput)
 	expected += buildListWizard(1, "processor", testProcs, procInput)
 	expected += buildListWizard(1, "exporter", testExps, expInput)
 	expected += buildListWizard(1, "extension", testExts, extInput)
 	expectedOut := rpe{
-		Receivers: recInput,
+		Receivers:  recInput,
 		Processors: procInput,
-		Exporters: expInput,
+		Exporters:  expInput,
 		Extensions: extInput,
 	}
 	return expected, expectedOut
@@ -111,7 +111,7 @@ func TestRpeWizard(t *testing.T) {
 		testExps,
 		testExts,
 		nil, nil, nil, nil,
-		)
+	)
 	assert.Equal(t, expectedOut, out)
 	assert.Equal(t, expected, w.programOutput)
 
@@ -130,7 +130,7 @@ func TestRpeWizard(t *testing.T) {
 		[]string{testProcs[0]},
 		[]string{testExps[0]},
 		[]string{testExts[0]},
-		)
+	)
 	assert.Equal(t, expectedOut2, out2)
 	assert.Equal(t, expected2, w2.programOutput)
 
@@ -197,7 +197,7 @@ func TestComponentListWizard(t *testing.T) {
 		compGroup,
 		compNames,
 		[]string{compNames[0]},
-		)
+	)
 	assert.Equal(t, expected2, w2.programOutput)
 
 	// Testing extension and the input 1+ component
@@ -211,7 +211,7 @@ func TestComponentListWizard(t *testing.T) {
 		compGroup,
 		compNames,
 		[]string{compNames[0] + "/extension", compNames[1]},
-		)
+	)
 	assert.Equal(t, expected3, w3.programOutput)
 
 	// Extra test for buildListWizard on 2+
@@ -225,7 +225,7 @@ func TestComponentListWizard(t *testing.T) {
 		compGroup,
 		compNames,
 		[]string{compNames[0], compNames[1] + "/extension", compNames[2]},
-		)
+	)
 	assert.Equal(t, expected4, w4.programOutput)
 
 }
