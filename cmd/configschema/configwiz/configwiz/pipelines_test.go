@@ -23,7 +23,7 @@ import (
 )
 
 type compInputs struct {
-	comps []string
+	comps  []string
 	inputs []string
 }
 
@@ -84,7 +84,7 @@ func buildRpeWizard(
 	procInput compInputs,
 	expInput compInputs,
 	extInput compInputs,
-	) (string, rpe) {
+) (string, rpe) {
 	expected := buildListWizard(1, "receiver", recInput.comps, recInput.inputs)
 	expected += buildListWizard(1, "processor", procInput.comps, procInput.inputs)
 	expected += buildListWizard(1, "exporter", expInput.comps, expInput.inputs)
@@ -105,7 +105,7 @@ func buildPipelineType(
 	procInput compInputs,
 	expInput compInputs,
 	extInput compInputs,
-	) (string, rpe) {
+) (string, rpe) {
 	wiz, rpe0 := buildRpeWizard(recInput, procInput, expInput, extInput)
 	expected := fmt.Sprintf("%s pipeline extended name (optional) > ", strings.Split(strings.Title(name), "/")[0])
 	expected += fmt.Sprintf("Pipeline \"%s\"\n", name)
@@ -130,7 +130,7 @@ func TestPipelineTypeWizard(t *testing.T) {
 		compInputs{comps: testProcs},
 		compInputs{comps: testExps},
 		compInputs{comps: testExts},
-		)
+	)
 	assert.Equal(t, "testing", name)
 	assert.Equal(t, rpe0, rpeOut)
 	assert.Equal(t, expected0, w.programOutput)
@@ -145,7 +145,7 @@ func TestPipelineTypeWizard(t *testing.T) {
 		compInputs{comps: testRecs, inputs: []string{testRecs[0]}},
 		compInputs{comps: testProcs, inputs: []string{testProcs[0]}},
 		compInputs{comps: testExps, inputs: []string{testExps[0]}},
-		compInputs{comps : testExts, inputs: []string{testExts[0]}},
+		compInputs{comps: testExts, inputs: []string{testExts[0]}},
 	)
 	assert.Equal(t, "testing1", name1)
 	assert.Equal(t, rpe1, rpeOut1)
@@ -161,9 +161,9 @@ func TestPipelineTypeWizard(t *testing.T) {
 		compInputs{comps: testRecs, inputs: []string{testRecs[0] + "/extr"}},
 		compInputs{comps: testProcs, inputs: []string{testProcs[0] + "/extp"}},
 		compInputs{comps: testExps, inputs: []string{testExps[0] + "/extexp"}},
-		compInputs{comps : testExts, inputs: []string{testExts[0] + "/extext"}},
+		compInputs{comps: testExts, inputs: []string{testExts[0] + "/extext"}},
 	)
-	assert.Equal(t, "testingExt" + "/extpip", name2)
+	assert.Equal(t, "testingExt"+"/extpip", name2)
 	assert.Equal(t, rpe2, rpeOut2)
 	assert.Equal(t, expected2, w2.programOutput)
 }
@@ -185,7 +185,7 @@ func TestRpeWizard(t *testing.T) {
 		compInputs{comps: testProcs},
 		compInputs{comps: testExps},
 		compInputs{comps: testExts},
-		)
+	)
 	assert.Equal(t, expectedOut, out)
 	assert.Equal(t, expected, w.programOutput)
 
@@ -199,8 +199,8 @@ func TestRpeWizard(t *testing.T) {
 		compInputs{comps: testRecs, inputs: []string{testRecs[0]}},
 		compInputs{comps: testProcs, inputs: []string{testProcs[0]}},
 		compInputs{comps: testExps, inputs: []string{testExps[0]}},
-		compInputs{comps : testExts, inputs: []string{testExts[0]}},
-		)
+		compInputs{comps: testExts, inputs: []string{testExts[0]}},
+	)
 	assert.Equal(t, expectedOut2, out2)
 	assert.Equal(t, expected2, w2.programOutput)
 
@@ -210,12 +210,12 @@ func TestRpeWizard(t *testing.T) {
 	io3 := clio{w3.write, r3.read}
 	pr3 := io3.newIndentingPrinter(1)
 	out3 := rpeWizard(io3, pr3, testRecs, testProcs, testExps, testExts)
-	expected3, expectedOut3 :=buildRpeWizard(
+	expected3, expectedOut3 := buildRpeWizard(
 		compInputs{comps: testRecs, inputs: []string{testRecs[0] + "/extr"}},
 		compInputs{comps: testProcs, inputs: []string{testProcs[0] + "/extp"}},
 		compInputs{comps: testExps, inputs: []string{testExps[0] + "/extexp"}},
-		compInputs{comps : testExts, inputs: []string{testExts[0] + "/extext"}},
-		)
+		compInputs{comps: testExts, inputs: []string{testExts[0] + "/extext"}},
+	)
 
 	assert.Equal(t, expectedOut3, out3)
 	assert.Equal(t, expected3, w3.programOutput)
@@ -231,8 +231,8 @@ func TestRpeWizard(t *testing.T) {
 		compInputs{comps: testRecs, inputs: []string{testRecs[0], testRecs[1]}},
 		compInputs{comps: testProcs, inputs: []string{testProcs[0]}},
 		compInputs{comps: testExps, inputs: []string{testExps[1]}},
-		compInputs{comps : testExts, inputs: []string{testExts[0]}},
-		)
+		compInputs{comps: testExts, inputs: []string{testExts[0]}},
+	)
 	assert.Equal(t, expectedOut4, out4)
 	assert.Equal(t, expected4, w4.programOutput)
 }
