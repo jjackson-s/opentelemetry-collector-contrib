@@ -51,6 +51,7 @@ func keys(p map[string]interface{}) []string {
 }
 
 func singlePipelineWizard(factories component.Factories) (string, rpe) {
+	io := clio{printLine, readline}
 	fmt.Print("Add pipeline (enter to skip)\n")
 	fmt.Print("1: Metrics\n")
 	fmt.Print("2: Traces\n")
@@ -60,13 +61,15 @@ func singlePipelineWizard(factories component.Factories) (string, rpe) {
 	case "":
 		return "", rpe{}
 	case "1":
-		return pipelineTypeWizard("metrics",
+		return pipelineTypeWizard(io,
+			"metrics",
 			receiverNames(factories, isMetricsReceiver),
 			processorNames(factories, isMetricProcessor),
 			exporterNames(factories, isMetricsExporter),
 			extensionNames(factories, isExtension))
 	case "2":
-		return pipelineTypeWizard("traces",
+		return pipelineTypeWizard(io,
+			"traces",
 			receiverNames(factories, isTracesReceiver),
 			processorNames(factories, isTracesProcessor),
 			exporterNames(factories, isTracesExporter),
@@ -78,21 +81,22 @@ func singlePipelineWizard(factories component.Factories) (string, rpe) {
 
 // pipelineTypeWizard for a given pipelineType (e.g. "metrics", "traces")
 func pipelineTypeWizard(
+	io clio,
 	pipelineType string,
 	receivers []string,
 	processors []string,
 	exporters []string,
 	extensions []string,
 ) (string, rpe) {
-	fmt.Printf("%s pipeline extended name (optional) > ", strings.Title(pipelineType))
+	pr := io.newIndentingPrinter(0)
+	pr.print(fmt.Sprintf("%s pipeline extended name (optional) > ", strings.Title(pipelineType)))
 	name := pipelineType
-	nameExt := readline("")
+	nameExt := io.read("")
 	if nameExt != "" {
 		name += "/" + nameExt
 	}
-	fmt.Printf("Pipeline %q\n", name)
-	io := clio{printLine, readline}
-	pr := io.newIndentingPrinter(1)
+	pr.print(fmt.Sprintf("Pipeline %q\n", name))
+	pr.level++
 	rpe := rpeWizard(io, pr, receivers, processors, exporters, extensions)
 	return name, rpe
 }
