@@ -29,9 +29,11 @@ const invalidMsg = "Invalid input. Try again."
 
 func pipelinesWizard(factories component.Factories) map[string]interface{} {
 	out := map[string]interface{}{}
+	io := clio{printLine, readline}
+
 	for {
 		fmt.Printf("Current pipelines: [%s]\n", strings.Join(keys(out), ", "))
-		name, rpe := singlePipelineWizard(factories)
+		name, rpe := singlePipelineWizard(io, factories)
 		if name == "" {
 			break
 		}
@@ -50,13 +52,12 @@ func keys(p map[string]interface{}) []string {
 	return out
 }
 
-func singlePipelineWizard(factories component.Factories) (string, rpe) {
-	io := clio{printLine, readline}
+func singlePipelineWizard(io clio, factories component.Factories) (string, rpe) {
 	fmt.Print("Add pipeline (enter to skip)\n")
 	fmt.Print("1: Metrics\n")
 	fmt.Print("2: Traces\n")
 	fmt.Print("> ")
-	pipelineID := readline("")
+	pipelineID := io.read("")
 	switch pipelineID {
 	case "":
 		return "", rpe{}
@@ -76,7 +77,7 @@ func singlePipelineWizard(factories component.Factories) (string, rpe) {
 			extensionNames(factories, isExtension))
 	}
 	fmt.Println(invalidMsg)
-	return singlePipelineWizard(factories)
+	return singlePipelineWizard(io, factories)
 }
 
 // pipelineTypeWizard for a given pipelineType (e.g. "metrics", "traces")

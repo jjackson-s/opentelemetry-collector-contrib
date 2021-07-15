@@ -15,11 +15,20 @@
 package configwiz
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"go.opentelemetry.io/collector/component"
+	"go.opentelemetry.io/collector/config"
+	"go.opentelemetry.io/collector/exporter/exporterhelper"
+	"go.opentelemetry.io/collector/extension/extensionhelper"
+	"go.opentelemetry.io/collector/internal/testcomponents"
+	"go.opentelemetry.io/collector/processor/processorhelper"
+	"go.opentelemetry.io/collector/receiver/receiverhelper"
 )
 
 type compInputs struct {
@@ -112,6 +121,34 @@ func buildPipelineType(
 	expected += wiz
 	return expected, rpe0
 }
+
+func buildCompInputs(testFactory component.Factories, recInp []string, procInp []string, expInp []string, extInp []string) []compInputs {
+	return []compInputs{
+		{receiverNames(testFactory, isMetricsReceiver), recInp},
+		{processorNames(testFactory, isMetricProcessor), procInp},
+		{exporterNames(testFactory, isMetricsExporter), expInp},
+		{extensionNames(testFactory, isExtension), extInp},
+		}
+}
+
+
+func TestSinglePipelineWizard(t *testing.T) {
+	//	func singlePipelineWizard(factories component.Factories) (string, rpe) {
+	w := fakeWriter{}
+	r := fakeReaderPipe{userInput: []string{"1", ""}}
+	io := clio{w.write, r.read}
+	testFact := createTestFactories()
+	buildCompInputs(testFact, []string{}, []string{}, []string{}, []string{})
+	receiverNames(testFact, isMetricsReceiver)
+
+	singlePipelineWizard(io, testFact)
+	out := buildCompInputs(testFact, nil, nil, nil, nil)
+	expectedOut, _ := buildPipelineType("metrics", out[0], out[1], out[2], out[3])
+
+	//assert.Equal(t, test, rpe0)
+	assert.Equal(t, expectedOut, w.programOutput)
+}
+
 
 func TestPipelineTypeWizard(t *testing.T) {
 	testRecs := []string{"rec1", "rec2", "rec3"}
@@ -326,4 +363,80 @@ func TestComponentNameWizard(t *testing.T) {
 	expected3 := expected + "Invalid input. Try again.\n"
 	expected3 += expected
 	assert.Equal(t, expected3, w3.programOutput)
+}
+
+func createTestFactories() component.Factories {
+	exampleReceiverFactory := testcomponents.ExampleReceiverFactory
+	exampleProcessorFactory := testcomponents.ExampleProcessorFactory
+	exampleExporterFactory := testcomponents.ExampleExporterFactory
+	badExtensionFactory := newBadExtensionFactory()
+	badReceiverFactory := newBadReceiverFactory()
+	badProcessorFactory := newBadProcessorFactory()
+	badExporterFactory := newBadExporterFactory()
+
+	factories := component.Factories{
+		Extensions: map[config.Type]component.ExtensionFactory{
+			badExtensionFactory.Type(): badExtensionFactory,
+		},
+		Receivers: map[config.Type]component.ReceiverFactory{
+			exampleReceiverFactory.Type(): exampleReceiverFactory,
+			badReceiverFactory.Type():     badReceiverFactory,
+		},
+		Processors: map[config.Type]component.ProcessorFactory{
+			exampleProcessorFactory.Type(): exampleProcessorFactory,
+			badProcessorFactory.Type():     badProcessorFactory,
+		},
+		Exporters: map[config.Type]component.ExporterFactory{
+			exampleExporterFactory.Type(): exampleExporterFactory,
+			badExporterFactory.Type():     badExporterFactory,
+		},
+	}
+
+	return factories
+}
+
+func newBadReceiverFactory() component.ReceiverFactory {
+	return receiverhelper.NewFactory("bf", func() config.Receiver {
+		return &struct {
+			config.ReceiverSettings `mapstructure:",squash"` // squash ensures fields are correctly decoded in embedded struct
+		}{
+			ReceiverSettings: config.NewReceiverSettings(config.NewID("bf")),
+		}
+	})
+}
+
+func newBadProcessorFactory() component.ProcessorFactory {
+	return processorhelper.NewFactory("bf", func() config.Processor {
+		return &struct {
+			config.ProcessorSettings `mapstructure:",squash"` // squash ensures fields are correctly decoded in embedded struct
+		}{
+			ProcessorSettings: config.NewProcessorSettings(config.NewID("bf")),
+		}
+	})
+}
+
+func newBadExporterFactory() component.ExporterFactory {
+	return exporterhelper.NewFactory("bf", func() config.Exporter {
+		return &struct {
+			config.ExporterSettings `mapstructure:",squash"` // squash ensures fields are correctly decoded in embedded struct
+		}{
+			ExporterSettings: config.NewExporterSettings(config.NewID("bf")),
+		}
+	})
+}
+
+func newBadExtensionFactory() component.ExtensionFactory {
+	return extensionhelper.NewFactory(
+		"bf",
+		func() config.Extension {
+			return &struct {
+				config.ExtensionSettings `mapstructure:",squash"` // squash ensures fields are correctly decoded in embedded struct
+			}{
+				ExtensionSettings: config.NewExtensionSettings(config.NewID("bf")),
+			}
+		},
+		func(ctx context.Context, params component.ExtensionCreateParams, extension config.Extension) (component.Extension, error) {
+			return nil, nil
+		},
+	)
 }
