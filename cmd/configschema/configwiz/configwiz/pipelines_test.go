@@ -122,33 +122,58 @@ func buildPipelineType(
 	return expected, rpe0
 }
 
-func buildCompInputs(testFactory component.Factories, recInp []string, procInp []string, expInp []string, extInp []string) []compInputs {
-	return []compInputs{
-		{receiverNames(testFactory, isMetricsReceiver), recInp},
-		{processorNames(testFactory, isMetricProcessor), procInp},
-		{exporterNames(testFactory, isMetricsExporter), expInp},
-		{extensionNames(testFactory, isExtension), extInp},
+func buildCompInputs(testFactory component.Factories, pipeType bool, recInp []string, procInp []string, expInp []string, extInp []string) []compInputs {
+	if pipeType {
+		return []compInputs{
+			{receiverNames(testFactory, isMetricsReceiver), recInp},
+			{processorNames(testFactory, isMetricProcessor), procInp},
+			{exporterNames(testFactory, isMetricsExporter), expInp},
+			{extensionNames(testFactory, isExtension), extInp},
 		}
+	}
+	return []compInputs{
+		{receiverNames(testFactory, isTracesReceiver), recInp},
+		{processorNames(testFactory, isTracesProcessor), procInp},
+		{exporterNames(testFactory, isTracesExporter), expInp},
+		{extensionNames(testFactory, isExtension), extInp},
+	}
 }
 
+func buildSinglePipelineWiz(testFact component.Factories, pipeType bool) (string, rpe) {
+	expected := "Add pipeline (enter to skip)\n1: Metrics\n2: Traces\n> "
+	comps := buildCompInputs(testFact, false, nil, nil, nil, nil)
+	name := ""
+	if pipeType {
+		name = "metrics"
+	} else {
+		name = "traces"
+	}
+	expectedOut, rpe0 := buildPipelineType(name, comps[0], comps[1], comps[2], comps[3])
+	return expected + expectedOut, rpe0
 
-func TestSinglePipelineWizard(t *testing.T) {
-	//	func singlePipelineWizard(factories component.Factories) (string, rpe) {
+}
+
+func TestSinglePipelineWizardTraces(t *testing.T) {
+	w := fakeWriter{}
+	r := fakeReaderPipe{userInput: []string{"2", ""}}
+	io := clio{w.write, r.read}
+	testFact := createTestFactories()
+	singlePipelineWizard(io, testFact)
+	expectedOut, rpe0 := buildSinglePipelineWiz(testFact, false)
+	assert.Equal(t, rpe{}, rpe0)
+	assert.Equal(t, expectedOut, w.programOutput)
+}
+
+func TestSinglePipelineWizardMetrics(t *testing.T) {
 	w := fakeWriter{}
 	r := fakeReaderPipe{userInput: []string{"1", ""}}
 	io := clio{w.write, r.read}
 	testFact := createTestFactories()
-	buildCompInputs(testFact, []string{}, []string{}, []string{}, []string{})
-	receiverNames(testFact, isMetricsReceiver)
-
 	singlePipelineWizard(io, testFact)
-	out := buildCompInputs(testFact, nil, nil, nil, nil)
-	expectedOut, _ := buildPipelineType("metrics", out[0], out[1], out[2], out[3])
-
-	//assert.Equal(t, test, rpe0)
+	expectedOut, rpe0 := buildSinglePipelineWiz(testFact, true)
+	assert.Equal(t, rpe{}, rpe0)
 	assert.Equal(t, expectedOut, w.programOutput)
 }
-
 
 func TestPipelineTypeWizard(t *testing.T) {
 	testRecs := []string{"rec1", "rec2", "rec3"}

@@ -53,10 +53,11 @@ func keys(p map[string]interface{}) []string {
 }
 
 func singlePipelineWizard(io clio, factories component.Factories) (string, rpe) {
-	fmt.Print("Add pipeline (enter to skip)\n")
-	fmt.Print("1: Metrics\n")
-	fmt.Print("2: Traces\n")
-	fmt.Print("> ")
+	pr := io.newIndentingPrinter(0)
+	pr.print("Add pipeline (enter to skip)\n")
+	pr.print("1: Metrics\n")
+	pr.print("2: Traces\n")
+	pr.print("> ")
 	pipelineID := io.read("")
 	switch pipelineID {
 	case "":
@@ -76,7 +77,7 @@ func singlePipelineWizard(io clio, factories component.Factories) (string, rpe) 
 			exporterNames(factories, isTracesExporter),
 			extensionNames(factories, isExtension))
 	}
-	fmt.Println(invalidMsg)
+	pr.println(invalidMsg)
 	return singlePipelineWizard(io, factories)
 }
 
