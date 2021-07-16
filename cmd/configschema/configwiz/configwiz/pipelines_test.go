@@ -139,18 +139,23 @@ func buildCompInputs(testFactory component.Factories, pipeType bool, recInp []st
 	}
 }
 
-func buildSinglePipelineWiz(testFact component.Factories, pipeType bool) (string, rpe) {
+func buildSinglePipelineWiz(testFact component.Factories, name string) (string, rpe) {
 	expected := "Add pipeline (enter to skip)\n1: Metrics\n2: Traces\n> "
 	comps := buildCompInputs(testFact, false, nil, nil, nil, nil)
-	name := ""
-	if pipeType {
-		name = "metrics"
-	} else {
-		name = "traces"
-	}
 	expectedOut, rpe0 := buildPipelineType(name, comps[0], comps[1], comps[2], comps[3])
 	return expected + expectedOut, rpe0
 
+}
+
+func TestSinglePipelineWizardEmpty(t *testing.T) {
+	w := fakeWriter{}
+	r := fakeReaderPipe{userInput: []string{""}}
+	io := clio{w.write, r.read}
+	testFact := createTestFactories()
+	_, rpeOut := singlePipelineWizard(io, testFact)
+	expected := "Add pipeline (enter to skip)\n1: Metrics\n2: Traces\n> "
+	assert.Equal(t, rpe{}, rpeOut)
+	assert.Equal(t, expected, w.programOutput)
 }
 
 func TestSinglePipelineWizardTraces(t *testing.T) {
@@ -158,9 +163,9 @@ func TestSinglePipelineWizardTraces(t *testing.T) {
 	r := fakeReaderPipe{userInput: []string{"2", ""}}
 	io := clio{w.write, r.read}
 	testFact := createTestFactories()
-	singlePipelineWizard(io, testFact)
-	expectedOut, rpe0 := buildSinglePipelineWiz(testFact, false)
-	assert.Equal(t, rpe{}, rpe0)
+	name, rpeOut := singlePipelineWizard(io, testFact)
+	expectedOut, rpe0 := buildSinglePipelineWiz(testFact, name)
+	assert.Equal(t, rpe0, rpeOut)
 	assert.Equal(t, expectedOut, w.programOutput)
 }
 
@@ -169,9 +174,9 @@ func TestSinglePipelineWizardMetrics(t *testing.T) {
 	r := fakeReaderPipe{userInput: []string{"1", ""}}
 	io := clio{w.write, r.read}
 	testFact := createTestFactories()
-	singlePipelineWizard(io, testFact)
-	expectedOut, rpe0 := buildSinglePipelineWiz(testFact, true)
-	assert.Equal(t, rpe{}, rpe0)
+	name, rpeOut := singlePipelineWizard(io, testFact)
+	expectedOut, rpe0 := buildSinglePipelineWiz(testFact, name)
+	assert.Equal(t, rpe0, rpeOut)
 	assert.Equal(t, expectedOut, w.programOutput)
 }
 
