@@ -24,9 +24,10 @@ import (
 )
 
 func CLI(factories component.Factories) {
+	io := clio{printLine, readline}
 	service := map[string]interface{}{
 		// this is the overview (top-level) part of the wizard, where the user just creates the pipelines
-		"pipelines": pipelinesWizard(factories),
+		"pipelines": pipelinesWizard(io, factories),
 	}
 	m := map[string]interface{}{
 		"service": service,

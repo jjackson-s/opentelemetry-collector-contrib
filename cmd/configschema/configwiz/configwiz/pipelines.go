@@ -27,12 +27,11 @@ import (
 
 const invalidMsg = "Invalid input. Try again."
 
-func pipelinesWizard(factories component.Factories) map[string]interface{} {
+func pipelinesWizard(io clio, factories component.Factories) map[string]interface{} {
 	out := map[string]interface{}{}
-	io := clio{printLine, readline}
-
+	pr := io.newIndentingPrinter(0)
 	for {
-		fmt.Printf("Current pipelines: [%s]\n", strings.Join(keys(out), ", "))
+		pr.print(fmt.Sprintf("Current pipelines: [%s]\n", strings.Join(keys(out), ", ")))
 		name, rpe := singlePipelineWizard(io, factories)
 		if name == "" {
 			break

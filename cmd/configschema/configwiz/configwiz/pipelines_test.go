@@ -147,6 +147,64 @@ func buildSinglePipelineWiz(testFact component.Factories, name string) (string, 
 
 }
 
+func buildPipelineWizard(testFact component.Factories, inputs []string) (string, rpe) {
+	expected := "Current pipelines: []\n"
+	addPipe := "Add pipeline (enter to skip)\n1: Metrics\n2: Traces\n> "
+	if len(inputs) == 0 {
+		return expected + addPipe, rpe{}
+	}
+	expectedOut, rpe0 := buildSinglePipelineWiz(testFact, inputs[0])
+	expectedOut = expected + expectedOut
+	for i := range inputs {
+		expectedOut += "Current pipelines: ["
+		currPipes := inputs[:i+1]
+		for _, pipe := range currPipes {
+			expectedOut += pipe + ", "
+		}
+		expectedOut = expectedOut[0 : len(expectedOut)-2]
+		expectedOut += "]\n" + addPipe
+	}
+	return expectedOut, rpe0
+}
+
+func TestPipelineWizardTraces (t *testing.T){
+	w := fakeWriter{}
+	r := fakeReaderPipe{userInput: []string{"2", ""}}
+	io := clio{w.write, r.read}
+	testFact := createTestFactories()
+	out := pipelinesWizard(io, testFact)
+	assert.Equal(t, map[string]interface{}(map[string]interface{}{
+		"traces": rpe{},
+	}), out)
+	expected, _ := buildPipelineWizard(testFact, []string{"traces"})
+	assert.Equal(t, expected, w.programOutput)
+
+}
+
+func TestPipelineWizardMetric(t *testing.T) {
+	w := fakeWriter{}
+	r := fakeReaderPipe{userInput: []string{"1", ""}}
+	io := clio{w.write, r.read}
+	testFact := createTestFactories()
+	out := pipelinesWizard(io, testFact)
+	assert.Equal(t, map[string]interface{}(map[string]interface{}{
+		"metrics": rpe{},
+	}), out)
+	expected, _ := buildPipelineWizard(testFact, []string{"metrics"})
+	assert.Equal(t, expected, w.programOutput)
+}
+
+func TestPipelineWizardEmpty(t *testing.T) {
+	w := fakeWriter{}
+	r := fakeReaderPipe{userInput: []string{""}}
+	io := clio{w.write, r.read}
+	testFact := createTestFactories()
+	out := pipelinesWizard(io, testFact)
+	assert.Equal(t, map[string]interface{}(map[string]interface{}{}), out)
+	expected, _ := buildPipelineWizard(testFact, []string{})
+	assert.Equal(t, expected, w.programOutput)
+}
+
 func TestSinglePipelineWizardEmpty(t *testing.T) {
 	w := fakeWriter{}
 	r := fakeReaderPipe{userInput: []string{""}}
