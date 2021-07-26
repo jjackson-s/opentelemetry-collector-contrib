@@ -12,27 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package components
 
 import (
+	//"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/otelcontribcol"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/service/defaultcomponents"
 
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/alibabacloudlogserviceexporter"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/awsemfexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/awskinesisexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/awsprometheusremotewriteexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/awsxrayexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/azuremonitorexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/carbonexporter"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/datadogexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/dynatraceexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/elasticexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/f5cloudexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/googlecloudexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/honeycombexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/humioexporter"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/influxdbexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/loadbalancingexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/logzioexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/lokiexporter"
@@ -41,7 +39,6 @@ import (
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/sentryexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/signalfxexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/splunkhecexporter"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/stackdriverexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/sumologicexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/tanzuobservabilityexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/extension/fluentbitextension"
@@ -67,7 +64,6 @@ import (
 	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/dotnetdiagnosticsreceiver"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/filelogreceiver"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/fluentforwardreceiver"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/influxdbreceiver"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/jmxreceiver"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/k8sclusterreceiver"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/kafkametricsreceiver"
@@ -88,26 +84,8 @@ import (
 	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/zookeeperreceiver"
 )
 
-func components() (component.Factories, error) {
+func Components() (component.Factories, error) {
 	factories, err := defaultcomponents.Components()
-	if err != nil {
-		return component.Factories{}, err
-	}
-
-	extensions := []component.ExtensionFactory{
-		filestorage.NewFactory(),
-		fluentbitextension.NewFactory(),
-		hostobserver.NewFactory(),
-		httpforwarder.NewFactory(),
-		k8sobserver.NewFactory(),
-		oauth2clientauthextension.NewFactory(),
-	}
-
-	for _, ext := range factories.Extensions {
-		extensions = append(extensions, ext)
-	}
-
-	factories.Extensions, err = component.MakeExtensionFactoryMap(extensions...)
 	if err != nil {
 		return component.Factories{}, err
 	}
@@ -121,7 +99,7 @@ func components() (component.Factories, error) {
 		dotnetdiagnosticsreceiver.NewFactory(),
 		filelogreceiver.NewFactory(),
 		fluentforwardreceiver.NewFactory(),
-		influxdbreceiver.NewFactory(),
+		//influxdbreceiver.NewFactory(),
 		jmxreceiver.NewFactory(),
 		kafkametricsreceiver.NewFactory(),
 		k8sclusterreceiver.NewFactory(),
@@ -141,49 +119,12 @@ func components() (component.Factories, error) {
 		tcplogreceiver.NewFactory(),
 		udplogreceiver.NewFactory(),
 	}
-
-	receivers = append(receivers, extraReceivers()...)
-
+	receivers = append(receivers, []component.ReceiverFactory{}...)
+	//receivers = append(receivers, main.extraReceivers()...)
 	for _, rcv := range factories.Receivers {
 		receivers = append(receivers, rcv)
 	}
 	factories.Receivers, err = component.MakeReceiverFactoryMap(receivers...)
-	if err != nil {
-		return component.Factories{}, err
-	}
-
-	exporters := []component.ExporterFactory{
-		alibabacloudlogserviceexporter.NewFactory(),
-		awsemfexporter.NewFactory(),
-		awskinesisexporter.NewFactory(),
-		awsprometheusremotewriteexporter.NewFactory(),
-		awsxrayexporter.NewFactory(),
-		azuremonitorexporter.NewFactory(),
-		carbonexporter.NewFactory(),
-		datadogexporter.NewFactory(),
-		dynatraceexporter.NewFactory(),
-		elasticexporter.NewFactory(),
-		f5cloudexporter.NewFactory(),
-		googlecloudexporter.NewFactory(),
-		honeycombexporter.NewFactory(),
-		humioexporter.NewFactory(),
-		influxdbexporter.NewFactory(),
-		loadbalancingexporter.NewFactory(),
-		logzioexporter.NewFactory(),
-		lokiexporter.NewFactory(),
-		newrelicexporter.NewFactory(),
-		sapmexporter.NewFactory(),
-		sentryexporter.NewFactory(),
-		signalfxexporter.NewFactory(),
-		splunkhecexporter.NewFactory(),
-		stackdriverexporter.NewFactory(),
-		sumologicexporter.NewFactory(),
-		tanzuobservabilityexporter.NewFactory(),
-	}
-	for _, exp := range factories.Exporters {
-		exporters = append(exporters, exp)
-	}
-	factories.Exporters, err = component.MakeExporterFactoryMap(exporters...)
 	if err != nil {
 		return component.Factories{}, err
 	}
@@ -206,6 +147,62 @@ func components() (component.Factories, error) {
 	if err != nil {
 		return component.Factories{}, err
 	}
+
+	exporters := []component.ExporterFactory{
+		alibabacloudlogserviceexporter.NewFactory(),
+		//awsemfexporter.NewFactory(),
+		awskinesisexporter.NewFactory(),
+		awsprometheusremotewriteexporter.NewFactory(),
+		awsxrayexporter.NewFactory(),
+		azuremonitorexporter.NewFactory(),
+		carbonexporter.NewFactory(),
+		//datadogexporter.NewFactory(),
+		dynatraceexporter.NewFactory(),
+		elasticexporter.NewFactory(),
+		f5cloudexporter.NewFactory(),
+		googlecloudexporter.NewFactory(),
+		honeycombexporter.NewFactory(),
+		humioexporter.NewFactory(),
+		//influxdbexporter.NewFactory(),
+		loadbalancingexporter.NewFactory(),
+		logzioexporter.NewFactory(),
+		lokiexporter.NewFactory(),
+		newrelicexporter.NewFactory(),
+		sapmexporter.NewFactory(),
+		sentryexporter.NewFactory(),
+		signalfxexporter.NewFactory(),
+		splunkhecexporter.NewFactory(),
+		//stackdriverexporter.NewFactory(),
+		sumologicexporter.NewFactory(),
+		tanzuobservabilityexporter.NewFactory(),
+	}
+	for _, exp := range factories.Exporters {
+		exporters = append(exporters, exp)
+	}
+	factories.Exporters, err = component.MakeExporterFactoryMap(exporters...)
+
+	if err != nil {
+		return component.Factories{}, err
+	}
+
+	extensions := []component.ExtensionFactory{
+		filestorage.NewFactory(),
+		fluentbitextension.NewFactory(),
+		hostobserver.NewFactory(),
+		httpforwarder.NewFactory(),
+		k8sobserver.NewFactory(),
+		oauth2clientauthextension.NewFactory(),
+	}
+
+	for _, ext := range factories.Extensions {
+		extensions = append(extensions, ext)
+	}
+
+	factories.Extensions, err = component.MakeExtensionFactoryMap(extensions...)
+	if err != nil {
+		return component.Factories{}, err
+	}
+
 
 	return factories, nil
 }
