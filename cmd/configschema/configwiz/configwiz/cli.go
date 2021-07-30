@@ -33,6 +33,7 @@ func CLI(factories component.Factories) {
 		"service": service,
 	}
 	dr := configschema.NewDefaultDirResolver()
+	// build each individual component that the user chose.
 	for componentGroup, names := range serviceToComponentNames(service) {
 		handleComponent(factories, m, componentGroup, names, dr)
 	}

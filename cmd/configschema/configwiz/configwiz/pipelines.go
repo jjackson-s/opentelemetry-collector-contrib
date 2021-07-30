@@ -32,11 +32,11 @@ func pipelinesWizard(io clio, factories component.Factories) map[string]interfac
 	pr := io.newIndentingPrinter(0)
 	for {
 		pr.print(fmt.Sprintf("Current pipelines: [%s]\n", strings.Join(keys(out), ", ")))
-		name, rpe := singlePipelineWizard(io, factories)
+		name, rpe0 := singlePipelineWizard(io, factories)
 		if name == "" {
 			break
 		}
-		out[name] = rpe
+		out[name] = rpe0
 	}
 	return out
 }
@@ -210,6 +210,7 @@ func processorNames(c component.Factories, test processorFactoryTest) []string {
 			processors = append(processors, string(k))
 		}
 	}
+	sort.Strings(processors)
 	return processors
 }
 
@@ -251,6 +252,7 @@ func extensionNames(c component.Factories, test extensionFactoryTest) []string {
 			extensions = append(extensions, string(k))
 		}
 	}
+	sort.Strings(extensions)
 	return extensions
 }
 
