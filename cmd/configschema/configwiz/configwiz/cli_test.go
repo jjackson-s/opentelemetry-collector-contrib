@@ -32,3 +32,7 @@ func TestGetComponents(t *testing.T) {
 		"exporter": {"ccc", "bbb", "aaa"},
 	}, serviceToComponentNames(m))
 }
+
+func TestCli(t *testing.T) {
+
+}

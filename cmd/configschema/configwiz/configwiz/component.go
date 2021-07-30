@@ -56,7 +56,7 @@ func handleComponent(
 ) {
 	typeMap := map[string]interface{}{}
 	m[componentGroup+"s"] = typeMap
-	io := clio{printLine, readline}
+	io := Clio{PrintLine, Readline}
 	for _, name := range names {
 		cfgInfo, err := configschema.GetCfgInfo(factories, componentGroup, strings.Split(name, "/")[0])
 		if err != nil {
@@ -68,7 +68,7 @@ func handleComponent(
 	}
 }
 
-func componentWizard(io clio, lvl int, f *configschema.Field) map[string]interface{} {
+func componentWizard(io Clio, lvl int, f *configschema.Field) map[string]interface{} {
 	out := map[string]interface{}{}
 	p := io.newIndentingPrinter(lvl)
 	for _, field := range f.Fields {
@@ -79,7 +79,7 @@ func componentWizard(io clio, lvl int, f *configschema.Field) map[string]interfa
 			out[field.Name] = componentWizard(io, lvl+1, field)
 		} else if field.Kind == "ptr" {
 			p.print(fmt.Sprintf("%s (optional) skip (Y/n)> ", field.Name))
-			in := io.read("")
+			in := io.Read("")
 			if in == "n" {
 				out[field.Name] = componentWizard(io, lvl+1, field)
 			}
@@ -90,7 +90,7 @@ func componentWizard(io clio, lvl int, f *configschema.Field) map[string]interfa
 	return out
 }
 
-func handleField(io clio, p indentingPrinter2, field *configschema.Field, out map[string]interface{}) {
+func handleField(io Clio, p indentingPrinter2, field *configschema.Field, out map[string]interface{}) {
 	p.println("Field: " + field.Name)
 	typ := resolveType(field)
 	if typ != "" {
@@ -111,7 +111,7 @@ func handleField(io clio, p indentingPrinter2, field *configschema.Field, out ma
 	if field.Default != nil {
 		defaultVal = fmt.Sprintf("%v", field.Default)
 	}
-	in := io.read(defaultVal)
+	in := io.Read(defaultVal)
 	if in == "" {
 		return
 	}

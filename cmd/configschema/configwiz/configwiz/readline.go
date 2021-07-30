@@ -22,7 +22,7 @@ import (
 
 var reader = bufio.NewReader(os.Stdin)
 
-func readline(defaultVal string) string {
+func Readline(defaultVal string) string {
 	str, err := reader.ReadString('\n')
 	if err != nil {
 		panic(err)

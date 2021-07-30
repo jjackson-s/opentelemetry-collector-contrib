@@ -60,7 +60,7 @@ const compType = "test"
 func TestPipelineWizardTraces (t *testing.T){
 	w := fakeWriter{}
 	r := fakeReaderPipe{userInput: []string{"2", ""}}
-	io := clio{w.write, r.read}
+	io := Clio{w.write, r.read}
 	testFact := createTestFactories()
 	out := pipelinesWizard(io, testFact)
 	expected, _ := buildPipelineWizard(testFact, []string{"traces"})
@@ -73,7 +73,7 @@ func TestPipelineWizardTraces (t *testing.T){
 func TestPipelineWizardMetric(t *testing.T) {
 	w := fakeWriter{}
 	r := fakeReaderPipe{userInput: []string{"1", ""}}
-	io := clio{w.write, r.read}
+	io := Clio{w.write, r.read}
 	testFact := createTestFactories()
 	out := pipelinesWizard(io, testFact)
 	expected, _ := buildPipelineWizard(testFact, []string{"metrics"})
@@ -86,7 +86,7 @@ func TestPipelineWizardMetric(t *testing.T) {
 func TestPipelineWizardEmpty(t *testing.T) {
 	w := fakeWriter{}
 	r := fakeReaderPipe{userInput: []string{""}}
-	io := clio{w.write, r.read}
+	io := Clio{w.write, r.read}
 	testFact := createTestFactories()
 	out := pipelinesWizard(io, testFact)
 	expected, _ := buildPipelineWizard(testFact, []string{})
@@ -98,7 +98,7 @@ func TestPipelineWizardEmpty(t *testing.T) {
 func TestSinglePipelineWizardFail(t *testing.T) {
 	w := fakeWriter{}
 	r := fakeReaderPipe{userInput: []string{"-1", ""}}
-	io := clio{w.write, r.read}
+	io := Clio{w.write, r.read}
 	testFact := createTestFactories()
 	_, rpeOut := singlePipelineWizard(io, testFact)
 	expected := "Add pipeline (enter to skip)\n1: Metrics\n2: Traces\n> "
@@ -110,7 +110,7 @@ func TestSinglePipelineWizardFail(t *testing.T) {
 func TestSinglePipelineWizardEmpty(t *testing.T) {
 	w := fakeWriter{}
 	r := fakeReaderPipe{userInput: []string{""}}
-	io := clio{w.write, r.read}
+	io := Clio{w.write, r.read}
 	testFact := createTestFactories()
 	_, rpeOut := singlePipelineWizard(io, testFact)
 	expected := "Add pipeline (enter to skip)\n1: Metrics\n2: Traces\n> "
@@ -121,7 +121,7 @@ func TestSinglePipelineWizardEmpty(t *testing.T) {
 func TestSinglePipelineWizardTraces(t *testing.T) {
 	w := fakeWriter{}
 	r := fakeReaderPipe{userInput: []string{"2", ""}}
-	io := clio{w.write, r.read}
+	io := Clio{w.write, r.read}
 	testFact := createTestFactories()
 	name, rpeOut := singlePipelineWizard(io, testFact)
 	expectedOut, rpe0 := buildSinglePipelineWiz(testFact, name)
@@ -132,7 +132,7 @@ func TestSinglePipelineWizardTraces(t *testing.T) {
 func TestSinglePipelineWizardMetrics(t *testing.T) {
 	w := fakeWriter{}
 	r := fakeReaderPipe{userInput: []string{"1", ""}}
-	io := clio{w.write, r.read}
+	io := Clio{w.write, r.read}
 	testFact := createTestFactories()
 	name, rpeOut := singlePipelineWizard(io, testFact)
 	expectedOut, rpe0 := buildSinglePipelineWiz(testFact, name)
@@ -144,7 +144,7 @@ func TestSinglePipelineWizardMetrics(t *testing.T) {
 func TestPipelineTypeWizardEmpty(t *testing.T) {
 	w := fakeWriter{}
 	r := fakeReaderPipe{userInput: []string{""}}
-	io := clio{w.write, r.read}
+	io := Clio{w.write, r.read}
 	name, rpeOut := pipelineTypeWizard(io, "testing", testRecs, testProcs, testExps, testExts)
 	expected0, rpe0 := buildPipelineType(
 		name,
@@ -161,7 +161,7 @@ func TestPipelineTypeWizardEmpty(t *testing.T) {
 func TestPipelineTypeWizardBasicInp(t *testing.T) {
 	w := fakeWriter{}
 	r := fakeReaderPipe{userInput: []string{"", "0", "", "", "0", "", "", "0", "", "", "0", ""}}
-	io := clio{w.write, r.read}
+	io := Clio{w.write, r.read}
 	name, rpeOut := pipelineTypeWizard(io, "testing1", testRecs, testProcs, testExps, testExts)
 	expected, rpe0 := buildPipelineType(
 		name,
@@ -178,7 +178,7 @@ func TestPipelineTypeWizardBasicInp(t *testing.T) {
 func TestPipelineTypeWizardExtendedNames(t *testing.T) {
 	w := fakeWriter{}
 	r := fakeReaderPipe{userInput: []string{"extpip", "0", "extr", "", "0", "extp", "", "0", "extexp", "", "0", "extext", ""}}
-	io := clio{w.write, r.read}
+	io := Clio{w.write, r.read}
 	name, rpeOut := pipelineTypeWizard(io, "testingExt", testRecs, testProcs, testExps, testExts)
 	expected, rpe0 := buildPipelineType(
 		name,
@@ -196,7 +196,7 @@ func TestPipelineTypeWizardExtendedNames(t *testing.T) {
 func TestRpeWizardEmpty(t *testing.T) {
 	w := fakeWriter{}
 	r := fakeReaderPipe{userInput: []string{""}}
-	io := clio{w.write, r.read}
+	io := Clio{w.write, r.read}
 	pr := io.newIndentingPrinter(1)
 	out := rpeWizard(io, pr, testRecs, testProcs, testExps, testExts)
 	expected, expectedOut := buildRpeWizard(
@@ -212,7 +212,7 @@ func TestRpeWizardEmpty(t *testing.T) {
 func TestRpeWizardBasicInp(t *testing.T) {
 	w := fakeWriter{}
 	r := fakeReaderPipe{userInput: []string{"0", "", "", "0", "", "", "0", "", "", "0", ""}}
-	io := clio{w.write, r.read}
+	io := Clio{w.write, r.read}
 	pr := io.newIndentingPrinter(1)
 	out := rpeWizard(io, pr, testRecs, testProcs, testExps, testExts)
 	expected, expectedOut := buildRpeWizard(
@@ -228,7 +228,7 @@ func TestRpeWizardBasicInp(t *testing.T) {
 func TestRpeWizardMultipleInputs(t *testing.T) {
 	w := fakeWriter{}
 	r := fakeReaderPipe{userInput: []string{"0", "", "1", "extr", "", "0", "", "", "1", "", "", "0", ""}}
-	io := clio{w.write, r.read}
+	io := Clio{w.write, r.read}
 	pr := io.newIndentingPrinter(1)
 	out := rpeWizard(io, pr, testRecs, testProcs, testExps, testExts)
 	expected, expectedOut := buildRpeWizard(
@@ -245,7 +245,7 @@ func TestRpeWizardMultipleInputs(t *testing.T) {
 func TestComponentListWizardEmpty(t *testing.T) {
 	w := fakeWriter{}
 	r := fakeReader{}
-	io := clio{w.write, r.read}
+	io := Clio{w.write, r.read}
 	pr := io.newIndentingPrinter(1)
 	componentListWizard(io, pr, compType, compNames)
 	expected := buildListWizard(1, compType, compNames, []string{})
@@ -255,7 +255,7 @@ func TestComponentListWizardEmpty(t *testing.T) {
 func TestComponentListWizardSingleInp(t *testing.T) {
 	w := fakeWriter{}
 	r := fakeReaderPipe{userInput: []string{"0", ""}, input: 0}
-	io := clio{w.write, r.read}
+	io := Clio{w.write, r.read}
 	pr := io.newIndentingPrinter(1)
 	componentListWizard(io, pr, compType, compNames)
 	expected := buildListWizard(
@@ -270,7 +270,7 @@ func TestComponentListWizardSingleInp(t *testing.T) {
 func TestComponentListWizardMultipleInp(t *testing.T) {
 	w := fakeWriter{}
 	r := fakeReaderPipe{userInput: []string{"0", "", "1", "extension", "2", "", ""}}
-	io := clio{w.write, r.read}
+	io := Clio{w.write, r.read}
 	pr := io.newIndentingPrinter(1)
 	componentListWizard(io, pr, compType, compNames)
 	expected := buildListWizard(
@@ -286,7 +286,7 @@ func TestComponentListWizardMultipleInp(t *testing.T) {
 func TestComponentNameWizardEmpty(t *testing.T) {
 	w := fakeWriter{}
 	r := fakeReader{}
-	io := clio{w.write, r.read}
+	io := Clio{w.write, r.read}
 	pr := io.newIndentingPrinter(1)
 	componentNameWizard(io, pr, compType, compNames)
 	expected := buildNameWizard(1, "", compType, compNames)
@@ -296,7 +296,7 @@ func TestComponentNameWizardEmpty(t *testing.T) {
 func TestComponentNameWizardExtended(t *testing.T) {
 	w := fakeWriter{}
 	r := fakeReader{"0"}
-	io := clio{w.write, r.read}
+	io := Clio{w.write, r.read}
 	pr := io.newIndentingPrinter(1)
 	out, val := componentNameWizard(io, pr, compType, compNames)
 	expected := buildNameWizard(1, "", compType, compNames)
@@ -311,7 +311,7 @@ func TestComponentNameWizardExtended(t *testing.T) {
 func TestComponentNameWizardError(t *testing.T) {
 	w := fakeWriter{}
 	r := fakeReaderPipe{[]string{"-1", ""}, 0}
-	io := clio{w.write, r.read}
+	io := Clio{w.write, r.read}
 	pr := io.newIndentingPrinter(1)
 	componentNameWizard(io, pr, compType, compNames)
 	expected := buildNameWizard(1, "", compType, compNames)

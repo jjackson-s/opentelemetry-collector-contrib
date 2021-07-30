@@ -14,12 +14,21 @@
 
 package configwiz
 
-type Clio struct {
-	Write func(s string)
-	Read  func(defaultVal string) string
-}
+import (
+	"os"
+	"testing"
 
-func (io Clio) newIndentingPrinter(lvl int) (p indentingPrinter2) {
-	p = indentingPrinter2{level: lvl, write: io.Write}
-	return
+	"github.com/stretchr/testify/assert"
+)
+
+func TestWriteFile(t *testing.T) {
+	const fileName = "out.txt"
+	fileContent := []byte{'h', 'e', 'l', 'l', 'o'}
+	writeFile(fileName, fileContent)
+	outPut, err := os.ReadFile(fileName)
+	if err != nil {
+		panic(err)
+	}
+	assert.Equal(t, fileContent, outPut)
+	os.Remove(fileName)
 }

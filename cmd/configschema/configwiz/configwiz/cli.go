@@ -16,6 +16,7 @@ package configwiz
 
 import (
 	"fmt"
+	"strings"
 
 	"gopkg.in/yaml.v2"
 
@@ -23,8 +24,10 @@ import (
 	"go.opentelemetry.io/collector/component"
 )
 
-func CLI(factories component.Factories) {
-	io := clio{printLine, readline}
+const defaultFileName = "out.yaml"
+
+func CLI(io Clio, factories component.Factories) {
+	fileName := getFileName(io)
 	service := map[string]interface{}{
 		// this is the overview (top-level) part of the wizard, where the user just creates the pipelines
 		"pipelines": pipelinesWizard(io, factories),
@@ -37,8 +40,22 @@ func CLI(factories component.Factories) {
 	for componentGroup, names := range serviceToComponentNames(service) {
 		handleComponent(factories, m, componentGroup, names, dr)
 	}
-
 	bytes, _ := yaml.Marshal(m)
 	fmt.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 	fmt.Println(string(bytes))
+	writeFile(fileName, bytes)
+}
+
+func getFileName(io Clio) string {
+	pr := io.newIndentingPrinter(0)
+	pr.println("Name of file (default out.yaml):")
+	pr.print("> ")
+	fileName := io.Read("")
+	if fileName == "" {
+		fileName = defaultFileName
+	}
+	if !strings.HasSuffix(fileName, ".yaml") {
+		fileName += ".yaml"
+	}
+	return fileName
 }

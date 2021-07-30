@@ -16,10 +16,11 @@ package configwiz
 
 import (
 	"fmt"
+	"os"
 	"strings"
 )
 
-func printLine(s string) {
+func PrintLine(s string) {
 	fmt.Print(s)
 }
 
@@ -40,6 +41,21 @@ func (p indentingPrinter2) doPrint(s string, frmt string) {
 	const tabSize = 4
 	indent := p.level * tabSize
 	p.write(fmt.Sprintf(frmt, strings.Repeat(" ", indent), s))
+}
+
+// writeFile creates a file named fileName in the cwd, and writes given string to fileName
+func writeFile(fileName string, bytes []byte) {
+	file, err := os.Create(fileName)
+	if err != nil {
+		panic(err)
+	}
+	if _, err = file.Write(bytes); err != nil {
+		panic(err)
+	}
+	if err = file.Close(); err != nil {
+		panic(err)
+	}
+
 }
 
 // Deprecated

@@ -27,7 +27,7 @@ import (
 
 const invalidMsg = "Invalid input. Try again."
 
-func pipelinesWizard(io clio, factories component.Factories) map[string]interface{} {
+func pipelinesWizard(io Clio, factories component.Factories) map[string]interface{} {
 	out := map[string]interface{}{}
 	pr := io.newIndentingPrinter(0)
 	for {
@@ -51,13 +51,13 @@ func keys(p map[string]interface{}) []string {
 	return out
 }
 
-func singlePipelineWizard(io clio, factories component.Factories) (string, rpe) {
+func singlePipelineWizard(io Clio, factories component.Factories) (string, rpe) {
 	pr := io.newIndentingPrinter(0)
 	pr.print("Add pipeline (enter to skip)\n")
 	pr.print("1: Metrics\n")
 	pr.print("2: Traces\n")
 	pr.print("> ")
-	pipelineID := io.read("")
+	pipelineID := io.Read("")
 	switch pipelineID {
 	case "":
 		return "", rpe{}
@@ -82,7 +82,7 @@ func singlePipelineWizard(io clio, factories component.Factories) (string, rpe) 
 
 // pipelineTypeWizard for a given pipelineType (e.g. "metrics", "traces")
 func pipelineTypeWizard(
-	io clio,
+	io Clio,
 	pipelineType string,
 	receivers []string,
 	processors []string,
@@ -92,7 +92,7 @@ func pipelineTypeWizard(
 	pr := io.newIndentingPrinter(0)
 	pr.print(fmt.Sprintf("%s pipeline extended name (optional) > ", strings.Title(pipelineType)))
 	name := pipelineType
-	nameExt := io.read("")
+	nameExt := io.Read("")
 	if nameExt != "" {
 		name += "/" + nameExt
 	}
@@ -103,7 +103,7 @@ func pipelineTypeWizard(
 }
 
 func rpeWizard(
-	io clio,
+	io Clio,
 	pr indentingPrinter2,
 	receiverNames []string,
 	processorNames []string,
@@ -126,7 +126,7 @@ type rpe struct {
 	Extensions []string
 }
 
-func componentListWizard(io clio, pr indentingPrinter2, componentGroup string, componentNames []string) (out []string) {
+func componentListWizard(io Clio, pr indentingPrinter2, componentGroup string, componentNames []string) (out []string) {
 	for {
 		pr.println(fmt.Sprintf("Current %ss: [%s]", componentGroup, strings.Join(out, ", ")))
 		key, name := componentNameWizard(io, pr, componentGroup, componentNames)
@@ -141,13 +141,13 @@ func componentListWizard(io clio, pr indentingPrinter2, componentGroup string, c
 	return
 }
 
-func componentNameWizard(io clio, pr indentingPrinter2, componentType string, componentNames []string) (string, string) {
+func componentNameWizard(io Clio, pr indentingPrinter2, componentType string, componentNames []string) (string, string) {
 	pr.println(fmt.Sprintf("Add %s (enter to skip)", componentType))
 	for i, name := range componentNames {
 		pr.println(fmt.Sprintf("%d: %s", i, name))
 	}
 	pr.print("> ")
-	choice := io.read("")
+	choice := io.Read("")
 	if choice == "" {
 		return "", ""
 	}
@@ -160,7 +160,7 @@ func componentNameWizard(io clio, pr indentingPrinter2, componentType string, co
 	}
 	key := componentNames[i]
 	pr.print(fmt.Sprintf("%s %s extended name (optional) > ", key, componentType))
-	return key, io.read("")
+	return key, io.Read("")
 }
 
 type receiverFactoryTest func(factory component.ReceiverFactory) bool
