@@ -12,17 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package configwiz
 
-import (
-	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/configwiz/configwiz"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/components"
-)
+type Clio struct {
+	Write func(s string)
+	Read  func(defaultVal string) string
+}
 
-func main() {
-	c, err := components.Components()
-	if err != nil {
-		panic(err)
-	}
-	configwiz.CLI(c)
+// newIndentingPrinter creates a newIndentingPrinter object with io's write function
+func (io Clio) newIndentingPrinter(lvl int) (p indentingPrinter2) {
+	p = indentingPrinter2{level: lvl, write: io.Write}
+	return
 }

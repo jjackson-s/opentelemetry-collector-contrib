@@ -12,17 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package configwiz
 
 import (
-	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/configwiz/configwiz"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/components"
+	"os"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func main() {
-	c, err := components.Components()
+func TestWriteFile(t *testing.T) {
+	const fileName = "out.txt"
+	fileContent := []byte{'h', 'e', 'l', 'l', 'o'}
+	writeFile(fileName, fileContent)
+	outPut, err := os.ReadFile(fileName)
 	if err != nil {
 		panic(err)
 	}
-	configwiz.CLI(c)
+	assert.Equal(t, fileContent, outPut)
+	os.Remove(fileName)
 }

@@ -19,9 +19,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"go.opentelemetry.io/collector/model/pdata"
 
 	"go.opentelemetry.io/collector/component/componenttest"
-	"go.opentelemetry.io/collector/consumer/pdata"
 )
 
 func TestExampleExporterConsumer(t *testing.T) {

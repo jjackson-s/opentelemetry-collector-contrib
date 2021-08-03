@@ -19,8 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"go.opentelemetry.io/collector/cmd/configschema/configschema"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type fakeReader struct {
@@ -28,7 +29,6 @@ type fakeReader struct {
 }
 
 func (r fakeReader) read(defaultVal string) string {
-
 	return r.userInput
 }
 
@@ -40,27 +40,9 @@ func (w *fakeWriter) write(s string) {
 	w.programOutput += s
 }
 
-func TestHandleComponent(t *testing.T) {
-	w := fakeWriter{}
-	r := fakeReaderPipe{userInput: []string{"1", "0", "", "", "0", "", "", "0", "", "", "0", ""}}
-	io := clio{w.write, r.read}
-	fakeFact := createTestFactories()
-	serv := map[string]interface{}{
-		"pipelines": pipelinesWizard(io, fakeFact),
-	}
-	m := map[string]interface{}{
-		"service": serv,
-	}
-	dr := configschema.NewDirResolver("../", "github.com/open-telemetry/opentelemetry-collector-contrib")
-	for componentGroup, names := range serviceToComponentNames(serv) {
-		handleComponent(io, fakeFact, m, componentGroup, names, dr)
-	}
-	assert.Equal(t, "", w.programOutput)
-}
-
 func TestComponentWizardSquash(t *testing.T) {
 	writerSquash := fakeWriter{}
-	ioSquash := clio{writerSquash.write, fakeReader{}.read}
+	ioSquash := Clio{writerSquash.write, fakeReader{}.read}
 	cfgSquash := runCompWizard(ioSquash, "squash", "test", "helper", "", "testing compWizardSquash")
 	squash := cfgSquash.Fields[0].Fields[0]
 	expectedSquash := buildExpectedOutput(0, "", squash.Name, squash.Type, true, squash.Doc)
@@ -69,7 +51,7 @@ func TestComponentWizardSquash(t *testing.T) {
 
 func TestComponentWizardStruct(t *testing.T) {
 	writerStruct := fakeWriter{}
-	ioStruct := clio{writerStruct.write, fakeReader{}.read}
+	ioStruct := Clio{writerStruct.write, fakeReader{}.read}
 	cfgStruct := runCompWizard(ioStruct, "struct", "test", "struct", "", "testing CompWizard Struct")
 	struc := cfgStruct.Fields[0].Fields[0]
 	expectedStruct := fmt.Sprintf("%s\n", cfgStruct.Fields[0].Name)
@@ -79,7 +61,7 @@ func TestComponentWizardStruct(t *testing.T) {
 
 func TestComponentWizardPtr(t *testing.T) {
 	writerPtr := fakeWriter{}
-	ioPtr := clio{writerPtr.write, fakeReader{"n"}.read}
+	ioPtr := Clio{writerPtr.write, fakeReader{"n"}.read}
 	cfgPtr := runCompWizard(ioPtr, "ptr", "test", "ptr", "", "testing CompWizard ptr")
 	ptr := cfgPtr.Fields[0].Fields[0]
 	expectedPtr := fmt.Sprintf("%s (optional) skip (Y/n)> ", string(cfgPtr.Fields[0].Name))
@@ -89,7 +71,7 @@ func TestComponentWizardPtr(t *testing.T) {
 
 func TestComponentWizardHandle(t *testing.T) {
 	writerHandle := fakeWriter{}
-	ioHandle := clio{writerHandle.write, fakeReader{}.read}
+	ioHandle := Clio{writerHandle.write, fakeReader{}.read}
 	cfgHandle := runCompWizard(ioHandle, "handle", "test", "helper", "", "testing CompWizard handle")
 	field := cfgHandle.Fields[0]
 	expectedHandle := buildExpectedOutput(0, "", field.Name, field.Type, false, field.Doc)
@@ -99,7 +81,7 @@ func TestComponentWizardHandle(t *testing.T) {
 func TestHandleField(t *testing.T) {
 	writer := fakeWriter{}
 	reader := fakeReader{}
-	io := clio{writer.write, reader.read}
+	io := Clio{writer.write, reader.read}
 	p := io.newIndentingPrinter(0)
 	out := map[string]interface{}{}
 	cfgField := buildTestCFGFields(
@@ -165,7 +147,7 @@ func buildTestCFGFields(name string, typ string, kind string, defaultStr string,
 	return cfgField
 }
 
-func runCompWizard(io clio, name string, typ string, kind string, defaultStr string, doc string) configschema.Field {
+func runCompWizard(io Clio, name string, typ string, kind string, defaultStr string, doc string) configschema.Field {
 	const test = "test"
 	cfgField := buildTestCFGFields(
 		name+test,

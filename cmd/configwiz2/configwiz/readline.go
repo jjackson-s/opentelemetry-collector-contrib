@@ -12,17 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package configwiz
 
 import (
-	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/configwiz/configwiz"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/components"
+	"bufio"
+	"fmt"
+	"os"
 )
 
-func main() {
-	c, err := components.Components()
+var reader = bufio.NewReader(os.Stdin)
+
+func Readline(defaultVal string) string {
+	str, err := reader.ReadString('\n')
 	if err != nil {
 		panic(err)
 	}
-	configwiz.CLI(c)
+	fmt.Println()
+	str = str[:len(str)-1]
+	if str == "" {
+		return defaultVal
+	}
+	return str
 }

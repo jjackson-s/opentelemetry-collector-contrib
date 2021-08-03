@@ -32,7 +32,8 @@ func CLI(factories component.Factories) {
 	m := map[string]interface{}{
 		"service": service,
 	}
-	dr := configschema.NewDefaultDirResolver()
+	//dr := configschema.NewDefaultDirResolver()
+	dr := configschema.NewDirResolver(".", "github.com/open-telemetry/opentelemetry-collector-contrib")
 	for componentGroup, names := range serviceToComponentNames(service) {
 		handleComponent(io, factories, m, componentGroup, names, dr)
 	}

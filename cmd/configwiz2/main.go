@@ -15,7 +15,7 @@
 package main
 
 import (
-	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/configwiz/configwiz"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/configwiz2/configwiz"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/components"
 )
 
@@ -24,5 +24,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	configwiz.CLI(c)
+	io := configwiz.Clio{Write:configwiz.PrintLine, Read: configwiz.Readline}
+	configwiz.CLI(io, c)
 }

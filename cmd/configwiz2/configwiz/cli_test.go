@@ -12,17 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package configwiz
 
 import (
-	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/configwiz/configwiz"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/components"
+	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
-func main() {
-	c, err := components.Components()
-	if err != nil {
-		panic(err)
+func TestGetComponents(t *testing.T) {
+	m := map[string]interface{}{
+		"pipelines": map[string]interface{}{
+			"metrics": rpe{
+				Exporters: []string{"ccc", "bbb", "aaa"},
+			},
+		},
 	}
-	configwiz.CLI(c)
+	require.Equal(t, map[string][]string{
+		"exporter": {"ccc", "bbb", "aaa"},
+	}, serviceToComponentNames(m))
+}
+
+func TestCli(t *testing.T) {
+
 }
