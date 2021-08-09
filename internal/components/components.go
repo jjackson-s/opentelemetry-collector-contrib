@@ -22,8 +22,6 @@ import (
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/alibabacloudlogserviceexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/awskinesisexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/awsprometheusremotewriteexporter"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/awsxrayexporter"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/azuremonitorexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/carbonexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/dynatraceexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/elasticexporter"
@@ -32,7 +30,6 @@ import (
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/honeycombexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/humioexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/loadbalancingexporter"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/logzioexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/lokiexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/newrelicexporter"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/sapmexporter"
@@ -120,7 +117,6 @@ func Components() (component.Factories, error) {
 		udplogreceiver.NewFactory(),
 	}
 	receivers = append(receivers, []component.ReceiverFactory{}...)
-	//receivers = append(receivers, main.extraReceivers()...)
 	for _, rcv := range factories.Receivers {
 		receivers = append(receivers, rcv)
 	}
@@ -153,8 +149,8 @@ func Components() (component.Factories, error) {
 		//awsemfexporter.NewFactory(),
 		awskinesisexporter.NewFactory(),
 		awsprometheusremotewriteexporter.NewFactory(),
-		awsxrayexporter.NewFactory(),
-		azuremonitorexporter.NewFactory(),
+		//awsxrayexporter.NewFactory(),
+		//azuremonitorexporter.NewFactory(),
 		carbonexporter.NewFactory(),
 		//datadogexporter.NewFactory(),
 		dynatraceexporter.NewFactory(),
@@ -165,7 +161,7 @@ func Components() (component.Factories, error) {
 		humioexporter.NewFactory(),
 		//influxdbexporter.NewFactory(),
 		loadbalancingexporter.NewFactory(),
-		logzioexporter.NewFactory(),
+		//logzioexporter.NewFactory(),
 		lokiexporter.NewFactory(),
 		newrelicexporter.NewFactory(),
 		sapmexporter.NewFactory(),

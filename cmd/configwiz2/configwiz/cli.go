@@ -24,7 +24,7 @@ import (
 	"go.opentelemetry.io/collector/component"
 )
 
-const defaultFileName = "out.yaml"
+const defaultFileName = "compose.yaml"
 
 func CLI(io Clio, factories component.Factories) {
 	fileName := getFileName(io)
@@ -47,58 +47,6 @@ func CLI(io Clio, factories component.Factories) {
 	writeFile(fileName, []byte(rv))
 }
 
-// buildYamlFile outputs a .yaml file based on the configuration we created
-func buildYamlFile(m map[string]interface{}) string {
-	rv := ""
-	out := output{
-		map[string]interface{}{
-			"receivers": m["receivers"],
-		},
-		map[string]interface{}{
-			"processors": m["processors"],
-		},
-		map[string]interface{}{
-			"exporters" : m["exporters"],
-		},
-		map[string]interface{}{
-			"extensions": m["extensions"],
-		},
-		map[string]interface{}{
-			"service" : m["service"],
-		},
-	}
-	bytes, err := yaml.Marshal(out.receivers)
-	if err != nil {
-		panic(err)
-	}
-	rv += string(bytes)
-
-	bytes, err = yaml.Marshal(out.processors)
-	if err != nil {
-		panic(err)
-	}
-	rv += string(bytes)
-
-	bytes, err = yaml.Marshal(out.exporters)
-	if err != nil {
-		panic(err)
-	}
-	rv += string(bytes)
-
-	bytes, err = yaml.Marshal(out.extensions)
-	if err != nil {
-		panic(err)
-	}
-	rv += string(bytes)
-
-	bytes, err = yaml.Marshal(out.service)
-	if err != nil {
-		panic(err)
-	}
-	rv += string(bytes)
-	return rv
-}
-
 // getFileName prompts the user to input a fileName, and returns the value that they chose.
 // defaults to out.yaml
 func getFileName(io Clio) string {
@@ -115,7 +63,44 @@ func getFileName(io Clio) string {
 	return fileName
 }
 
-type output struct {
+// buildYamlFile outputs a .yaml file based on the configuration we created
+func buildYamlFile(m map[string]interface{}) string {
+	rv := ""
+	out := outYaml{
+		map[string]interface{}{
+			"receivers": m["receivers"],
+		},
+		map[string]interface{}{
+			"processors": m["processors"],
+		},
+		map[string]interface{}{
+			"exporters" : m["exporters"],
+		},
+		map[string]interface{}{
+			"extensions": m["extensions"],
+		},
+		map[string]interface{}{
+			"service" : m["service"],
+		},
+	}
+	rv += marshal(out.receivers)
+	rv += marshal(out.processors)
+	rv += marshal(out.exporters)
+	rv += marshal(out.extensions)
+	rv += marshal(out.service)
+	return rv
+}
+
+func marshal(comp interface{}) string {
+	if bytes, err := yaml.Marshal(comp); err != nil {
+		panic(err)
+	} else {
+		return string(bytes)
+	}
+}
+
+
+type outYaml struct {
 	receivers interface{}
 	processors interface{}
 	exporters interface{}

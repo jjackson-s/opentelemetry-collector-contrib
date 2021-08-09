@@ -57,22 +57,3 @@ func writeFile(fileName string, bytes []byte) {
 	}
 
 }
-
-// Deprecated
-type indentingPrinter struct {
-	level int
-}
-
-func (p indentingPrinter) println(s string) {
-	p.doPrint(s, "%s%s\n")
-}
-
-func (p indentingPrinter) print(s string) {
-	p.doPrint(s, "%s%s")
-}
-
-func (p indentingPrinter) doPrint(s string, frmt string) {
-	const tabSize = 4
-	indent := p.level * tabSize
-	fmt.Printf(frmt, strings.Repeat(" ", indent), s)
-}

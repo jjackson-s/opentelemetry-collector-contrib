@@ -15,9 +15,15 @@
 package configwiz
 
 import (
+	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"go.opentelemetry.io/collector/cmd/configschema/configschema"
+	"go.opentelemetry.io/collector/component"
+
+	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/redisreceiver"
 )
 
 func TestGetComponents(t *testing.T) {
@@ -34,5 +40,23 @@ func TestGetComponents(t *testing.T) {
 }
 
 func TestCli(t *testing.T) {
+	factories := component.Factories{}
+	receivers := []component.ReceiverFactory{
+		redisreceiver.NewFactory(),
+	}
+	factories.Receivers, _ = component.MakeReceiverFactoryMap(receivers...)
+	compGroup := "receiver"
+	name := "redis"
+	cfgInfo, err := configschema.GetCfgInfo(factories, compGroup, name)
+	if err != nil {
+		panic(err)
+	}
+	dr := configschema.NewDirResolver("../../..", "github.com/open-telemetry/opentelemetry-collector-contrib")
+	f, err:= configschema.ReadFields(reflect.ValueOf(cfgInfo.CfgInstance), dr)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Print(f)
 
 }
+

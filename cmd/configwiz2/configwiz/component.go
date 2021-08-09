@@ -63,7 +63,10 @@ func handleComponent(
 			panic(err)
 		}
 		fmt.Printf("%s %q\n", strings.Title(componentGroup), name)
-		f := configschema.ReadFields(reflect.ValueOf(cfgInfo.CfgInstance), dr)
+		f, err := configschema.ReadFields(reflect.ValueOf(cfgInfo.CfgInstance), dr)
+		if err != nil {
+			panic(err)
+		}
 		typeMap[name] = componentWizard(io, 0, f)
 	}
 }

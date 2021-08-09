@@ -321,7 +321,7 @@ func TestComponentNameWizardError(t *testing.T) {
 	assert.Equal(t, expected, w.programOutput)
 }
 
-// returns componentNameWizard() output, a list of all components
+// returns componentNameWizard() outYaml, a list of all components
 func buildNameWizard(indent int, prefix string, compType string, compNames []string) string {
 	const tabSize = 4
 	space := indent * tabSize
@@ -334,7 +334,7 @@ func buildNameWizard(indent int, prefix string, compType string, compNames []str
 	return prefix + expected
 }
 
-// returns componentListWizard() output
+// returns componentListWizard() outYaml
 func buildListWizard(indent int, compGroup string, compNames []string, inputs []string) string {
 	const tabSize = 4
 	space := indent * tabSize
@@ -359,7 +359,7 @@ func buildListWizard(indent int, compGroup string, compNames []string, inputs []
 	return expected
 }
 
-// returns RpeWizard() output
+// returns RpeWizard() outYaml
 func buildRpeWizard(
 	recInput compInputs,
 	procInput compInputs,
@@ -379,7 +379,7 @@ func buildRpeWizard(
 	return expected, expectedRPE
 }
 
-// returns pipelineTypeWizard() output
+// returns pipelineTypeWizard() outYaml
 func buildPipelineType(
 	name string,
 	recInput compInputs,
